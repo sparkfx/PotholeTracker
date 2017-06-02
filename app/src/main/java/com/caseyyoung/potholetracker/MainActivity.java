@@ -92,7 +92,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        initUI();
+//        initUI();
     }
 
     @Override
@@ -115,29 +115,33 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             gMap = googleMap;
             setUpMap();
         }
-        LatLng shenzhen = new LatLng(22.5362, 113.9454);
-        gMap.addMarker(new MarkerOptions().position(shenzhen).title("Marker in Shenzhen"));
-        gMap.moveCamera(CameraUpdateFactory.newLatLng(shenzhen));
+        LatLng ge = new LatLng(29.952000, -90.070151);
+        gMap.addMarker(new MarkerOptions().position(ge).title("Marker at GE"));
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(ge));
     }
     private void setUpMap() {
         gMap.setOnMapClickListener(this);// add the listener for click for amap object
+        gMap.getUiSettings().setZoomControlsEnabled(true);
     }
     @Override
     public void onMapClick(LatLng point) {
         currentHole = new Pothole(point, "it worked!");
+        gMap.addMarker(new MarkerOptions().position(point).title("Marker at click"));
+        ref.child("potholes").push().setValue(currentHole);
+        System.out.println("pothole " + currentHole.toString());
     }
 
-    private void initUI() {
-        track = (Button)findViewById(R.id.button2);
-        track.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Pothole pothole = currentHole;
-                    ref.child("potholes").push().setValue(pothole);
-            }
-        });
-
-    }
+//    private void initUI() {
+//        track = (Button)findViewById(R.id.button2);
+//        track.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Pothole pothole = currentHole;
+//                    ref.child("potholes").push().setValue(pothole);
+//            }
+//        });
+//
+//    }
 
 
 

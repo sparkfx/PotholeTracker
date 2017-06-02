@@ -33,4 +33,8 @@ public class Pothole {
     public void setDescrip(String descrip) {
         this.descrip = descrip;
     }
+
+    public String toString(){
+        return this.coords + " " + this.descrip;
+    }
 }

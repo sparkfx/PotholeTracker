@@ -43,6 +43,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Button locate, add, clear;
     private Button config, upload, start, stop;
     private Button track;
+    private Pothole currentHole;
 
 
 
@@ -123,6 +124,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
     @Override
     public void onMapClick(LatLng point) {
+        currentHole = new Pothole(point, "it worked!");
     }
 
     private void initUI() {
@@ -130,10 +132,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pothole pothole = new Pothole(3, "OMG IT'S HUGE");
-                for(int i =0; i<3; i++){
+                Pothole pothole = currentHole;
                     ref.child("potholes").push().setValue(pothole);
-                }
             }
         });
 

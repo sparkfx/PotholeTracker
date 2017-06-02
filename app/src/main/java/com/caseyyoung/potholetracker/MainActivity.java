@@ -114,14 +114,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (gMap == null) {
             gMap = googleMap;
             setUpMap();
+            gMap.getUiSettings().setZoomGesturesEnabled(true);
         }
         LatLng ge = new LatLng(29.952000, -90.070151);
         gMap.addMarker(new MarkerOptions().position(ge).title("Marker at GE"));
-        gMap.moveCamera(CameraUpdateFactory.newLatLng(ge));
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ge, 14.0f));
     }
     private void setUpMap() {
         gMap.setOnMapClickListener(this);// add the listener for click for amap object
         gMap.getUiSettings().setZoomControlsEnabled(true);
+        gMap.setMapType(3);
     }
     @Override
     public void onMapClick(LatLng point) {
@@ -129,6 +131,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         gMap.addMarker(new MarkerOptions().position(point).title("Marker at click"));
         ref.child("potholes").push().setValue(currentHole);
         System.out.println("pothole " + currentHole.toString());
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 18.0f));
     }
 
 //    private void initUI() {

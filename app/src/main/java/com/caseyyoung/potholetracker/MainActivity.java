@@ -132,7 +132,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onMapClick(LatLng point) {
 
-        Snackbar.make(findViewById(R.id.mainMap), "pothole added",5000).show();
+        Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
 
         currentHole = new Pothole(point, "it worked!");
         gMap.addMarker(new MarkerOptions().position(point).title("Marker at click"));

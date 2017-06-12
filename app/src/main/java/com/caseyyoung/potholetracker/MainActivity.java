@@ -1,6 +1,7 @@
 package com.caseyyoung.potholetracker;
 
 import android.content.DialogInterface;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+
 public class MainActivity extends FragmentActivity implements View.OnClickListener, GoogleMap.OnMapClickListener, OnMapReadyCallback{
 
     FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -44,6 +46,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Button config, upload, start, stop;
     private Button track;
     private Pothole currentHole;
+
 
 
 
@@ -72,6 +75,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         // When the compile and target version is higher than 22, please request the
         // following permissions at runtime to ensure the
@@ -123,15 +127,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void setUpMap() {
         gMap.setOnMapClickListener(this);// add the listener for click for amap object
         gMap.getUiSettings().setZoomControlsEnabled(true);
-        gMap.setMapType(3);
+//        gMap.setMapType(2);
     }
     @Override
     public void onMapClick(LatLng point) {
+
+        Snackbar.make(findViewById(R.id.mainMap), "pothole added",5000).show();
+
         currentHole = new Pothole(point, "it worked!");
         gMap.addMarker(new MarkerOptions().position(point).title("Marker at click"));
         ref.child("potholes").push().setValue(currentHole);
         System.out.println("pothole " + currentHole.toString());
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 18.0f));
+
     }
 
 //    private void initUI() {

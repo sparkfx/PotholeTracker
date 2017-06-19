@@ -57,7 +57,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Button track;
     private Pothole currentHole;
     private LocationManager locationManager;
-    private String address= "";
+    private String address;
     private Location mCurrentLocation;
     private double lat;
     private double lng;
@@ -115,10 +115,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (!isLocationEnabled()) {
             showAlert();
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
-                (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
+        getLocation();
+
+    }
+
+    private void getLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -133,6 +135,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             public void onLocationChanged(Location location) {
                 mCurrentLocation = location;
                 System.out.println(mCurrentLocation.toString());
+                address="";
                 getAddress();
                 LatLng point = new LatLng(lat, lng);
                 currentHole = new Pothole(point, address, 5);
@@ -153,7 +156,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
             }
         });
-
     }
 
     @Override
@@ -178,7 +180,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             gMap.getUiSettings().setZoomGesturesEnabled(true);
         }
         LatLng ge = new LatLng(29.952000, -90.070151);
-        gMap.addMarker(new MarkerOptions().position(ge).title("Marker at GE"));
+//        gMap.addMarker(new MarkerOptions().position(ge).title("Marker at GE"));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ge, 14.0f));
     }
     private void setUpMap() {
@@ -229,6 +231,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         lat = mCurrentLocation.getLatitude();
         lng = mCurrentLocation.getLongitude();
+        System.out.println();
+        System.out.println("LATITUDE " + lat);
+        System.out.println("LONGITUDE " +lng);
+        System.out.println();
+
         try {
             List<Address> addresses = geocoder.getFromLocation(lat,lng,1);
             System.out.println(addresses);
@@ -242,7 +249,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     address = address + " " + addy.getAddressLine(i);
                 }
             }
-
+          
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -8,14 +8,23 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class Pothole {
     private LatLng coords;
-    private String descrip;
-
+    private String address;
+    private int severity;
     public Pothole(){
 
     }
-    public Pothole(LatLng coords, String descrip){
+    public Pothole(LatLng coords, String address, int severity){
         this.coords = coords;
-        this.descrip = descrip;
+        this.address = address;
+        this.severity =severity;
+    }
+
+    public int getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(int severity) {
+        this.severity = severity;
     }
 
     public LatLng getCoords() {
@@ -26,15 +35,15 @@ public class Pothole {
         this.coords = coords;
     }
 
-    public String getDescrip() {
-        return descrip;
+    public String getAddress() {
+        return address;
     }
 
-    public void setDescrip(String descrip) {
-        this.descrip = descrip;
+    public void setAddress(String descrip) {
+        this.address = address;
     }
 
     public String toString(){
-        return this.coords + " " + this.descrip;
+        return this.coords + "\n" + this.address + "\n" + this.severity;
     }
 }

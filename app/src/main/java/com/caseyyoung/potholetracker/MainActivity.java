@@ -1,6 +1,14 @@
 package com.caseyyoung.potholetracker;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -35,19 +43,24 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
-public class MainActivity extends FragmentActivity implements View.OnClickListener, GoogleMap.OnMapClickListener, OnMapReadyCallback{
+
+public class MainActivity extends FragmentActivity implements View.OnClickListener, GoogleMap.OnMapClickListener, OnMapReadyCallback {
 
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     DatabaseReference ref = db.getReference();
     private GoogleMap gMap;
     protected static final String TAG = "MainActivity";
-    private Button locate, add, clear;
-    private Button config, upload, start, stop;
     private Button track;
     private Pothole currentHole;
-
-
+    private LocationManager locationManager;
+    private String address= "";
+    private Location mCurrentLocation;
+    private double lat;
+    private double lng;
 
 
     @Override
@@ -96,7 +109,51 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-//        initUI();
+        initUI();
+
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!isLocationEnabled()) {
+            showAlert();
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
+                (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                mCurrentLocation = location;
+                System.out.println(mCurrentLocation.toString());
+                getAddress();
+                LatLng point = new LatLng(lat, lng);
+                currentHole = new Pothole(point, address, 5);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        });
+
     }
 
     @Override
@@ -127,33 +184,68 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void setUpMap() {
         gMap.setOnMapClickListener(this);// add the listener for click for amap object
         gMap.getUiSettings().setZoomControlsEnabled(true);
-//        gMap.setMapType(2);
+        gMap.setMapType(1);
     }
     @Override
     public void onMapClick(LatLng point) {
-
-        Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
-
-        currentHole = new Pothole(point, "it worked!");
-        gMap.addMarker(new MarkerOptions().position(point).title("Marker at click"));
-        ref.child("potholes").push().setValue(currentHole);
-        System.out.println("pothole " + currentHole.toString());
-        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 18.0f));
-
     }
 
-//    private void initUI() {
-//        track = (Button)findViewById(R.id.button2);
-//        track.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Pothole pothole = currentHole;
-//                    ref.child("potholes").push().setValue(pothole);
-//            }
-//        });
-//
-//    }
+    private void initUI() {
+        track = (Button)findViewById(R.id.button2);
+        track.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    ref.child("potholes").push().setValue(currentHole);
+                gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
+                Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
+            }
+        });
 
+    }
+    private boolean isLocationEnabled(){
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    private void showAlert(){
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Enable Location").setMessage("Your Locations Settings is set to 'Off'." +
+                "\nPlease Enable Location to use this app")
+                .setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int paramint) {
+                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(myIntent);
+            }
+        });
+        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int paramint) {
 
+            }
+        });
+        dialog.show();
+    }
+    public void getAddress(){
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        lat = mCurrentLocation.getLatitude();
+        lng = mCurrentLocation.getLongitude();
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat,lng,1);
+            System.out.println(addresses);
+            Address addy = addresses.get(0);
+            System.out.println(addy);
+            for (int i =0; i<= addy.getMaxAddressLineIndex(); i++){
+                if(i < addy.getMaxAddressLineIndex()){
+                    address = address + addy.getAddressLine(i) + ", ";
+                }
+                else {
+                    address = address + " " + addy.getAddressLine(i);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

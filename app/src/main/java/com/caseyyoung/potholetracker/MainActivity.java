@@ -13,6 +13,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 
@@ -27,6 +29,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -40,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.vision.text.Text;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -61,6 +65,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Location mCurrentLocation;
     private double lat;
     private double lng;
+    private int potholeSeverity;
+    private EditText severityText;
 
 
     @Override
@@ -109,6 +115,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        severityText = (EditText)findViewById(R.id.severityText);
         initUI();
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -194,15 +201,40 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void initUI() {
         track = (Button)findViewById(R.id.button2);
+
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    ref.child("potholes").push().setValue(currentHole);
-                gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
-                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
-                Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
+
+                severityText.setVisibility(View.VISIBLE);
+                severityText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
+                        System.out.println("SEVERITY " + potholeSeverity);
+//                        ref.child("potholes").push().setValue(currentHole);
+                        gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
+                        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
+                        Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                    }
+                });
+
+
+
+                severityText.setVisibility(View.INVISIBLE);
             }
         });
+
+
 
     }
     private boolean isLocationEnabled(){
@@ -249,7 +281,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     address = address + " " + addy.getAddressLine(i);
                 }
             }
-          
+
         } catch (IOException e) {
             e.printStackTrace();
         }

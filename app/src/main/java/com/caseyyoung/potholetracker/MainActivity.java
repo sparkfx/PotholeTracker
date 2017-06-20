@@ -13,6 +13,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 
@@ -27,6 +29,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -40,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.vision.text.Text;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -65,6 +69,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private double lng;
     private static User user;
     private ArrayList<Pothole> holes;
+    private int potholeSeverity;
+    private EditText severityText;
 
 
     @Override
@@ -115,17 +121,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         initUser();
+        severityText = (EditText)findViewById(R.id.severityText);
         initUI();
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!isLocationEnabled()) {
             showAlert();
         }
-        getLocation();
-
-    }
-
-    private void getLocation() {
+//        getLocation();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -164,6 +167,46 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         });
     }
 
+
+//    private void getLocation() {
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                mCurrentLocation = location;
+//                System.out.println(mCurrentLocation.toString());
+//                address="";
+//                getAddress();
+//                LatLng point = new LatLng(lat, lng);
+//                currentHole = new Pothole(point, address, 5);
+//            }
+//
+//            @Override
+//            public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderEnabled(String provider) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderDisabled(String provider) {
+//
+//            }
+//        });
+//    }
+
     @Override
     public void onClick(View v) {
         // TODO Auto-generated method stub
@@ -200,6 +243,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void initUI() {
         track = (Button)findViewById(R.id.button2);
+/*
+
+
+move to new activity to reset display
+ */
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -208,8 +256,40 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
                 Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
-            }
+                severityText.setVisibility(View.VISIBLE);
+                severityText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+
+                    }
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        //severity will be rounded to fit within range 1-5
+                        if(!severityText.getText().toString().isEmpty()) {
+                            currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
+                            System.out.println("SEVERITY " + currentHole.getSeverity());
+//                        ref.child("potholes").push().setValue(currentHole);
+                            gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
+                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
+                            Snackbar.make(findViewById(R.id.activity_main), "pothole added", 5000).show();
+                        }
+//                        severityText.setVisibility(View.INVISIBLE);
+                    }
+
+                });
+
+
+
+//            }
         });
+
+
 
     }
     private boolean isLocationEnabled(){
@@ -264,7 +344,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     address = address + " " + addy.getAddressLine(i);
                 }
             }
-          
+
         } catch (IOException e) {
             e.printStackTrace();
         }

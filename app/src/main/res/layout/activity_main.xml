@@ -17,25 +17,37 @@
         android:paddingTop="@dimen/activity_vertical_margin"
         tools:context="com.caseyyoung.potholetracker.MainActivity">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
         <Button
             android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Track"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:text="Track" />
 
         <fragment
             android:id="@+id/map"
             class="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/button2"
-             />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/severityText" />
+
+        <EditText
+            android:id="@+id/severityText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/button2"
+            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:hint="Severity  of pothole 1(low)-5(high)"
+            android:inputType="number"
+            android:textColor="@android:color/black"
+            android:visibility="invisible"
+            tools:background="@android:color/white" />
+
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -48,6 +48,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +67,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Location mCurrentLocation;
     private double lat;
     private double lng;
+    private static User user;
+    private ArrayList<Pothole> holes;
     private int potholeSeverity;
     private EditText severityText;
 
@@ -95,6 +99,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
         super.onCreate(savedInstanceState);
         // When the compile and target version is higher than 22, please request the
         // following permissions at runtime to ensure the
@@ -115,6 +120,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        initUser();
         severityText = (EditText)findViewById(R.id.severityText);
         initUI();
 
@@ -245,7 +251,11 @@ move to new activity to reset display
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+//                    ref.child("potholes").push().setValue(currentHole);
+                ref.child("users").child(user.getEmail()).child("holes").push().setValue(currentHole);
+                gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
+                Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
                 severityText.setVisibility(View.VISIBLE);
                 severityText.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -276,8 +286,7 @@ move to new activity to reset display
 
 
 
-//
-            }
+//            }
         });
 
 
@@ -285,6 +294,14 @@ move to new activity to reset display
     }
     private boolean isLocationEnabled(){
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    private void initUser(){
+//        user = new User("ethan@crochet.getRekt", holes, 3, 5);
+        ArrayList<Pothole> h = new ArrayList<>();
+        h.add(new Pothole(new LatLng(-90.77, 30.231), "Address", 5));
+        holes = h;
+        user = new User( "ethan", holes , 3 ,4 , "getRekt");
+        ref.child("users").push().setValue(user);
     }
     private void showAlert(){
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);

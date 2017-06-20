@@ -51,6 +51,8 @@ public class Pothole {
     }
 
     public String toString(){
-        return this.coords + "\n" + this.address + "\n" + this.severity;
+        return
+//                this.coords + "\t" +
+                this.address + "\t" + this.severity;
     }
 }

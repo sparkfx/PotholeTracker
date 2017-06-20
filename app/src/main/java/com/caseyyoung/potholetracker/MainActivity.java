@@ -44,6 +44,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -61,6 +63,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private Location mCurrentLocation;
     private double lat;
     private double lng;
+    private static User user;
+    private ArrayList<Pothole> holes;
 
 
     @Override
@@ -89,6 +93,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
         super.onCreate(savedInstanceState);
         // When the compile and target version is higher than 22, please request the
         // following permissions at runtime to ensure the
@@ -109,6 +114,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        initUser();
         initUI();
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -197,7 +203,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    ref.child("potholes").push().setValue(currentHole);
+//                    ref.child("potholes").push().setValue(currentHole);
+                ref.child("users").child(user.getEmail()).child("holes").push().setValue(currentHole);
                 gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
                 Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
@@ -207,6 +214,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
     private boolean isLocationEnabled(){
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    private void initUser(){
+//        user = new User("ethan@crochet.getRekt", holes, 3, 5);
+        ArrayList<Pothole> h = new ArrayList<>();
+        h.add(new Pothole(new LatLng(-90.77, 30.231), "Address", 5));
+        holes = h;
+        user = new User( "ethan", holes , 3 ,4 , "getRekt");
+        ref.child("users").push().setValue(user);
     }
     private void showAlert(){
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);

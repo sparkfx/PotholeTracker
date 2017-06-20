@@ -215,7 +215,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        potholeSeverity = Integer.parseInt(severityText.getText().toString());
+                        currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
                         System.out.println("SEVERITY " + potholeSeverity);
 //                        ref.child("potholes").push().setValue(currentHole);
                         gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));

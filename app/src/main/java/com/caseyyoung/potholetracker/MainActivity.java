@@ -44,8 +44,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.vision.text.Text;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -71,6 +74,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private ArrayList<Pothole> holes;
     private int potholeSeverity;
     private EditText severityText;
+    private LatLng coords;
+    private ArrayList<Pothole> pots;
 
 
     @Override
@@ -128,7 +133,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (!isLocationEnabled()) {
             showAlert();
         }
-//        getLocation();
+        getLocation();
+    }
+
+
+    private void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -146,8 +155,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 System.out.println(mCurrentLocation.toString());
                 address="";
                 getAddress();
-                LatLng point = new LatLng(lat, lng);
-                currentHole = new Pothole(point, address, 5);
+                currentHole = new Pothole(lat,lng, address, 5);
+                coords = new LatLng(lat, lng);
             }
 
             @Override
@@ -166,46 +175,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
         });
     }
-
-
-//    private void getLocation() {
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            //    ActivityCompat#requestPermissions
-//            // here to request the missing permissions, and then overriding
-//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//            //                                          int[] grantResults)
-//            // to handle the case where the user grants the permission. See the documentation
-//            // for ActivityCompat#requestPermissions for more details.
-//            return;
-//        }
-//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
-//            @Override
-//            public void onLocationChanged(Location location) {
-//                mCurrentLocation = location;
-//                System.out.println(mCurrentLocation.toString());
-//                address="";
-//                getAddress();
-//                LatLng point = new LatLng(lat, lng);
-//                currentHole = new Pothole(point, address, 5);
-//            }
-//
-//            @Override
-//            public void onStatusChanged(String provider, int status, Bundle extras) {
-//
-//            }
-//
-//            @Override
-//            public void onProviderEnabled(String provider) {
-//
-//            }
-//
-//            @Override
-//            public void onProviderDisabled(String provider) {
-//
-//            }
-//        });
-//    }
 
     @Override
     public void onClick(View v) {
@@ -231,6 +200,23 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         LatLng ge = new LatLng(29.952000, -90.070151);
 //        gMap.addMarker(new MarkerOptions().position(ge).title("Marker at GE"));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ge, 14.0f));
+        ref.child("users").child(user.getUsername()).child("holes").addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot d: dataSnapshot.getChildren()){
+                    Pothole p = new Pothole();
+                    p = d.getValue(Pothole.class);
+                    pots.add(p);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
     private void setUpMap() {
         gMap.setOnMapClickListener(this);// add the listener for click for amap object
@@ -243,6 +229,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void initUI() {
         track = (Button)findViewById(R.id.button2);
+        pots = new ArrayList<>();
 /*
 
 
@@ -251,10 +238,10 @@ move to new activity to reset display
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                    ref.child("potholes").push().setValue(currentHole);
-                ref.child("users").child(user.getEmail()).child("holes").push().setValue(currentHole);
-                gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
-                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
+                ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
+                System.out.println("NUMBER OF POTHOLES: " + pots.size());
+                gMap.addMarker(new MarkerOptions().position(coords).title("Marker at click"));
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
                 Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
                 severityText.setVisibility(View.VISIBLE);
                 severityText.addTextChangedListener(new TextWatcher() {
@@ -274,9 +261,8 @@ move to new activity to reset display
                         if(!severityText.getText().toString().isEmpty()) {
                             currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
                             System.out.println("SEVERITY " + currentHole.getSeverity());
-//                        ref.child("potholes").push().setValue(currentHole);
-                            gMap.addMarker(new MarkerOptions().position(currentHole.getCoords()).title("Marker at click"));
-                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentHole.getCoords(), 25.0f));
+                            gMap.addMarker(new MarkerOptions().position(coords).title("Marker at click"));
+                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
                             Snackbar.make(findViewById(R.id.activity_main), "pothole added", 5000).show();
                         }
 //                        severityText.setVisibility(View.INVISIBLE);
@@ -286,10 +272,8 @@ move to new activity to reset display
 
 
 
-//            }
+            }
         });
-
-
 
     }
     private boolean isLocationEnabled(){
@@ -298,10 +282,10 @@ move to new activity to reset display
     private void initUser(){
 //        user = new User("ethan@crochet.getRekt", holes, 3, 5);
         ArrayList<Pothole> h = new ArrayList<>();
-        h.add(new Pothole(new LatLng(-90.77, 30.231), "Address", 5));
+        h.add(new Pothole(-90.77, 30.231, "Address", 5));
         holes = h;
-        user = new User( "ethan", holes , 3 ,4 , "getRekt");
-        ref.child("users").push().setValue(user);
+        user = new User( "ethan@yahoo.com", holes , 3 ,4 , "getRekt");
+        ref.child("users").child(user.getUsername()).setValue(user);
     }
     private void showAlert(){
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -326,14 +310,8 @@ move to new activity to reset display
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         lat = mCurrentLocation.getLatitude();
         lng = mCurrentLocation.getLongitude();
-        System.out.println();
-        System.out.println("LATITUDE " + lat);
-        System.out.println("LONGITUDE " +lng);
-        System.out.println();
-
         try {
             List<Address> addresses = geocoder.getFromLocation(lat,lng,1);
-            System.out.println(addresses);
             Address addy = addresses.get(0);
             System.out.println(addy);
             for (int i =0; i<= addy.getMaxAddressLineIndex(); i++){

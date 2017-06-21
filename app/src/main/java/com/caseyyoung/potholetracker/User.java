@@ -8,12 +8,13 @@ import java.util.ArrayList;
 
 public class User {
 
-    private static String emil;
     private int level;
     private int points;
     private String username;
     private String email;
     private ArrayList<Pothole> holes;
+
+    public User(){}
 
     public User (String email, ArrayList<Pothole> holes, int level, int points, String username){
         this.email = email;
@@ -31,24 +32,12 @@ public class User {
         this.email = email;
     }
 
-    public User(String email){
-        this.emil = email;
-    }
-
     public String getUsername() {
         return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public static String getEmil() {
-        return emil;
-    }
-
-    public void setEmil(String email) {
-        this.emil = email;
     }
 
     public void setHoles(ArrayList<Pothole> holes){

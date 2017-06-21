@@ -65,5 +65,6 @@ public class Pothole {
 
     public String toString(){
         return this.lat + ", " + this.lng + "\n" + this.address + "\n" + this.severity;
+
     }
 }

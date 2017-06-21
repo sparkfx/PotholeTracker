@@ -11,7 +11,6 @@ import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,20 +18,11 @@ import android.view.View;
 import android.widget.Button;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -51,7 +41,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -64,6 +53,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private GoogleMap gMap;
     protected static final String TAG = "MainActivity";
     private Button track;
+    private Button report;
     private Pothole currentHole;
     private LocationManager locationManager;
     private String address;
@@ -230,6 +220,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void initUI() {
         track = (Button)findViewById(R.id.button2);
         pots = new ArrayList<>();
+
 /*
 
 
@@ -247,18 +238,14 @@ move to new activity to reset display
                 severityText.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
                     }
-
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-
                     }
                     @Override
                     public void afterTextChanged(Editable s) {
                         //severity will be rounded to fit within range 1-5
-                        if(!severityText.getText().toString().isEmpty()) {
+                        if (!severityText.getText().toString().isEmpty()) {
                             currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
                             System.out.println("SEVERITY " + currentHole.getSeverity());
                             gMap.addMarker(new MarkerOptions().position(coords).title("Marker at click"));
@@ -267,15 +254,23 @@ move to new activity to reset display
                         }
 //                        severityText.setVisibility(View.INVISIBLE);
                     }
-
                 });
+            }
+            });
 
 
 
+        report =(Button)findViewById(R.id.reportButton);
+        report.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,ReportActivity.class);
+
+                startActivity(intent);
+                finish();
             }
         });
-
-    }
+        }
     private boolean isLocationEnabled(){
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }

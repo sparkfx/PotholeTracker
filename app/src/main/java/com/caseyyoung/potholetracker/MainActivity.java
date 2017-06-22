@@ -218,22 +218,26 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void initUI() {
-        track = (Button)findViewById(R.id.button2);
+        track = (Button)findViewById(R.id.trackButton);
         pots = new ArrayList<>();
 
 /*
+move to new activity to reset display?
 
-
-move to new activity to reset display
+sample coords
+29.951272, -90.066501
+29.952766, -90.068296
+29.955034, -90.068843
+29.959626, -90.070967
+29.962489, -90.075130
  */
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
-                System.out.println("NUMBER OF POTHOLES: " + pots.size());
-                gMap.addMarker(new MarkerOptions().position(coords).title("Marker at click"));
-                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
-                Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
+
+//                gMap.addMarker(new MarkerOptions().position(coords).title("Marker at click"));
+//                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
+//                Snackbar.make(findViewById(R.id.activity_main), "pothole added",5000).show();
                 severityText.setVisibility(View.VISIBLE);
                 severityText.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -248,13 +252,21 @@ move to new activity to reset display
                         if (!severityText.getText().toString().isEmpty()) {
                             currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
                             System.out.println("SEVERITY " + currentHole.getSeverity());
-                            gMap.addMarker(new MarkerOptions().position(coords).title("Marker at click"));
-                            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
+
                             Snackbar.make(findViewById(R.id.activity_main), "pothole added", 5000).show();
                         }
 //                        severityText.setVisibility(View.INVISIBLE);
                     }
+
                 });
+                gMap.addMarker(new MarkerOptions().position(coords).title(currentHole.getAddress()));
+
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
+                ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
+
+                System.out.println("NUMBER OF POTHOLES: " + pots.size());
+                severityText.getText().clear();
+
             }
             });
 

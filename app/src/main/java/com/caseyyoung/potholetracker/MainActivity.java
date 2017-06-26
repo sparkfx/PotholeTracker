@@ -253,7 +253,7 @@ sample coords
                             currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
                             System.out.println("SEVERITY " + currentHole.getSeverity());
 
-                            Snackbar.make(findViewById(R.id.activity_main), "pothole added", 5000).show();
+                            Snackbar.make(findViewById(R.id.activity_main), "pothole added", 3000).show();
                         }
 //                        severityText.setVisibility(View.INVISIBLE);
                     }
@@ -263,19 +263,20 @@ sample coords
 
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
                 ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
+                severityText.getText().clear();
 
                 System.out.println("NUMBER OF POTHOLES: " + pots.size());
-                severityText.getText().clear();
+             
 
             }
             });
-
-
+        severityText.setVisibility(View.INVISIBLE);
 
         report =(Button)findViewById(R.id.reportButton);
         report.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                severityText.setVisibility(View.INVISIBLE);
                 Intent intent = new Intent(MainActivity.this,ReportActivity.class);
 
                 startActivity(intent);

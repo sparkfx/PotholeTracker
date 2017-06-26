@@ -46,7 +46,7 @@ public class Pothole {
     }
 
     public void setSeverity(int severity) {
-        if(severity < MAX_SEVERITY && severity > MIN_SEVERITY)
+        if(severity <= MAX_SEVERITY && severity >= MIN_SEVERITY)
         this.severity = severity;
         else if(severity > MAX_SEVERITY)
             this.severity = MAX_SEVERITY;

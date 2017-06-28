@@ -61,7 +61,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private double lat;
     private double lng;
     private static User user;
-    private ArrayList<Pothole> holes;
     private int potholeSeverity;
     private EditText severityText;
     private LatLng coords;
@@ -194,10 +193,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                pots.clear();
                 for(DataSnapshot d: dataSnapshot.getChildren()){
                     Pothole p = new Pothole();
                     p = d.getValue(Pothole.class);
                     pots.add(p);
+                    System.out.println("NUMBER OF POTHOLES: " + pots.size());
+                    user.setPoints(pots.size());
+                    user.setLevel(pots.size()/3);
+                    gMap.addMarker(new MarkerOptions().position(new LatLng(p.getLat(), p.getLng())).title(p.getAddress()));
                 }
 
             }
@@ -221,16 +225,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         track = (Button)findViewById(R.id.trackButton);
         pots = new ArrayList<>();
 
-/*
-move to new activity to reset display?
-
-sample coords
-29.951272, -90.066501
-29.952766, -90.068296
-29.955034, -90.068843
-29.959626, -90.070967
-29.962489, -90.075130
- */
         track.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -259,26 +253,29 @@ sample coords
                     }
 
                 });
-                gMap.addMarker(new MarkerOptions().position(coords).title(currentHole.getAddress()));
-
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
                 ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
                 severityText.getText().clear();
 
-                System.out.println("NUMBER OF POTHOLES: " + pots.size());
              
 
             }
             });
         severityText.setVisibility(View.INVISIBLE);
-
         report =(Button)findViewById(R.id.reportButton);
         report.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ArrayList<String> holes = new ArrayList<>();
                 severityText.setVisibility(View.INVISIBLE);
                 Intent intent = new Intent(MainActivity.this,ReportActivity.class);
-
+                int count = 0;
+                for (Pothole p : pots) {
+                    count = count + 1;
+                    String pot = p.toString();
+                    holes.add("Hole "+ count +": "+ pot + "\n\n");
+                }
+                intent.putExtra("POTHOLES", holes);
                 startActivity(intent);
                 finish();
             }
@@ -289,10 +286,10 @@ sample coords
     }
     private void initUser(){
 //        user = new User("ethan@crochet.getRekt", holes, 3, 5);
-        ArrayList<Pothole> h = new ArrayList<>();
-        h.add(new Pothole(-90.77, 30.231, "Address", 5));
-        holes = h;
-        user = new User( "ethan@yahoo.com", holes , 3 ,4 , "getRekt");
+        Intent intent = getIntent();
+        String email = intent.getStringExtra("USERNAME");
+        String username = email.substring(0, email.indexOf('@'));
+        user = new User( email, pots , 0, 0, username);
         ref.child("users").child(user.getUsername()).setValue(user);
     }
     private void showAlert(){

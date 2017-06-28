@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="257dp"
         android:layout_weight="1.01"
-        app:srcCompat="@mipmap/pothole_login" />
+        app:srcCompat="@drawable/potholetracker" />
 
     <ProgressBar
         android:id="@+id/login_progress"

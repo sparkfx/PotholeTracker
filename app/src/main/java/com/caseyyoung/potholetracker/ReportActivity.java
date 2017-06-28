@@ -1,5 +1,6 @@
 package com.caseyyoung.potholetracker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,8 +17,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class ReportActivity extends AppCompatActivity {
 
-    FirebaseDatabase db = FirebaseDatabase.getInstance();
-    DatabaseReference ref = db.getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +25,9 @@ public class ReportActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
          TextView reportView = (TextView)findViewById(R.id.reportContentText);
-
+        Intent intent = getIntent();
+        System.out.println(intent.getStringArrayListExtra("POTHOLES"));
+        reportView.setText(intent.getStringArrayListExtra("POTHOLES").toString());
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,31 +37,5 @@ public class ReportActivity extends AppCompatActivity {
             }
         });
 
-        ref.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 }

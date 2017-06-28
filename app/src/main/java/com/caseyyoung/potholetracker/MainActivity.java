@@ -202,8 +202,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     user.setPoints(pots.size());
                     user.setLevel(pots.size()/3);
                     gMap.addMarker(new MarkerOptions().position(new LatLng(p.getLat(), p.getLng())).title(p.getAddress()));
-                }
 
+                }
+                System.out.println(pots);
             }
 
             @Override
@@ -246,7 +247,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                         if (!severityText.getText().toString().isEmpty()) {
                             currentHole.setSeverity(Integer.parseInt(severityText.getText().toString()));
                             System.out.println("SEVERITY " + currentHole.getSeverity());
-
+                            ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
                             Snackbar.make(findViewById(R.id.activity_main), "pothole added", 3000).show();
                         }
 //                        severityText.setVisibility(View.INVISIBLE);
@@ -254,7 +255,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
                 });
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coords, 25.0f));
-                ref.child("users").child(user.getUsername()).child("holes").push().setValue(currentHole);
                 severityText.getText().clear();
 
              
@@ -277,7 +277,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 }
                 intent.putExtra("POTHOLES", holes);
                 startActivity(intent);
-                finish();
+
             }
         });
         }

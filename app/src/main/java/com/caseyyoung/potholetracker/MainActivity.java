@@ -23,6 +23,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,6 +63,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private double lng;
     private static User user;
     private int potholeSeverity;
+    private TextView usrView;
     private EditText severityText;
     private LatLng coords;
     private ArrayList<Pothole> pots;
@@ -116,6 +118,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mapFragment.getMapAsync(this);
         initUser();
         severityText = (EditText)findViewById(R.id.severityText);
+        usrView = (TextView)findViewById(R.id.textView3);
+        usrView.setText("\t" + user.getUsername() + "\t LEVEL: " + user.getLevel() + "\t Holes Tracked: " + user.getPoints());
         initUI();
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -194,6 +198,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 pots.clear();
+                user.setPoints(0);
+                user.setLevel(0);
                 for(DataSnapshot d: dataSnapshot.getChildren()){
                     Pothole p = new Pothole();
                     p = d.getValue(Pothole.class);
@@ -202,8 +208,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     user.setPoints(pots.size());
                     user.setLevel(pots.size()/3);
                     gMap.addMarker(new MarkerOptions().position(new LatLng(p.getLat(), p.getLng())).title(p.getAddress()));
+//                    usrView.setText("\t" + user.getUsername() + "\t LEVEL: " + user.getLevel() + "\t Holes Tracked: " + user.getPoints());
 
                 }
+                usrView.setText("\t" + user.getUsername() + "\t LEVEL: " + user.getLevel() + "\t Holes Tracked: " + user.getPoints());
                 System.out.println(pots);
             }
 

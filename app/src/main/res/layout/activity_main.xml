@@ -6,7 +6,7 @@
     android:id="@+id/mainMap"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/wallet_bright_foreground_disabled_holo_light">
+    android:background="@color/place_autocomplete_separator">
 
     <RelativeLayout
         android:id="@+id/activity_main"
